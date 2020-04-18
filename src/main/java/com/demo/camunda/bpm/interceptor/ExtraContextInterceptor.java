@@ -13,7 +13,7 @@ public class ExtraContextInterceptor extends CommandInterceptor {
         try {
             return next.execute(command);
         } finally {
-            log.warn("Handle all messages");
+            log.debug("Handle all messages");
             ExtraContext.handleMessage(msg -> {
                 log.info("Send message : {}", JSON.toJSONString(msg));
             });

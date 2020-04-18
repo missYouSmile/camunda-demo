@@ -29,7 +29,7 @@
 
     <properties>
         <spring.boot.version>2.2.1.RELEASE</spring.boot.version>
-        <camunda.version>7.12.0</camunda.version>
+        <camunda.version>7.11.0</camunda.version>
         <maven.compiler.source>1.7</maven.compiler.source>
         <maven.compiler.target>1.7</maven.compiler.target>
     </properties>
@@ -97,6 +97,12 @@
         <dependency>
             <groupId>org.camunda.bpm</groupId>
             <artifactId>camunda-engine-spring</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 
