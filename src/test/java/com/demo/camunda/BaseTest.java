@@ -6,16 +6,22 @@ import org.camunda.bpm.engine.HistoryService;
 import org.camunda.bpm.engine.TaskService;
 import org.camunda.bpm.engine.history.HistoricProcessInstance;
 import org.camunda.bpm.engine.history.HistoricTaskInstance;
+import org.camunda.bpm.engine.impl.persistence.entity.TaskEntity;
+import org.camunda.bpm.engine.task.IdentityLink;
 import org.junit.Before;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.util.CollectionUtils;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Slf4j
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -57,13 +63,30 @@ public abstract class BaseTest {
                 .forEach(task -> taskService.complete(task.getId(), variables));
     }
 
+    protected void printActiveTaskCandidateUsers(String processInstanceId) {
+        BpmnHelper.execute(commandContext -> {
+            List<TaskEntity> tasks = commandContext.getTaskManager().findTasksByProcessInstanceId(processInstanceId);
+            for (TaskEntity task : tasks) {
+                Set<IdentityLink> candidates = task.getCandidates();
+                if (CollectionUtils.isEmpty(candidates)) {
+                    continue;
+                }
+                String candidateUserIds = candidates.stream().map(IdentityLink::getUserId)
+                        .collect(Collectors.joining(","));
+                log.error("printActiveTaskCandidateUsers >>>> {} , {} <<<<", task.getId(), candidateUserIds);
+            }
+            return null;
+        });
+
+    }
+
     protected void printCurrentTasks(String processInstanceId) {
-        log.error("==== CURRENT TASKS ====");
+        log.warn("==== CURRENT TASKS ====");
         historyService.createHistoricTaskInstanceQuery()
                 .processInstanceId(processInstanceId)
                 .list()
                 .forEach(this::printHistoricTask);
-        log.error("==== CURRENT TASKS ====");
+        log.warn("==== CURRENT TASKS ====");
     }
 
     protected void printProcessState(String processInstanceId) {
