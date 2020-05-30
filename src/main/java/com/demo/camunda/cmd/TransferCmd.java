@@ -1,6 +1,6 @@
 package com.demo.camunda.cmd;
 
-import com.demo.camunda.bpm.extra.ExtraTaskDecorator;
+import com.demo.camunda.bpm.extra.TransferTaskDecorator;
 import lombok.extern.slf4j.Slf4j;
 import org.camunda.bpm.engine.delegate.TaskListener;
 import org.camunda.bpm.engine.impl.el.ExpressionManager;
@@ -38,10 +38,9 @@ public class TransferCmd implements Command<Void> {
 
         // new task for toUserId
         ExpressionManager expressionManager = commandContext.getProcessEngineConfiguration().getExpressionManager();
-        TaskDecorator taskDecorator = new ExtraTaskDecorator(task.getTaskDefinition(), expressionManager);
+        TaskDecorator taskDecorator = new TransferTaskDecorator(task.getTaskDefinition(), expressionManager, toUserId);
         TaskEntity newTask = TaskEntity.createAndInsert(execution);
         taskDecorator.decorate(newTask, execution);
-        newTask.setAssignee(toUserId);
         // create historic task instance
         commandContext.getHistoricTaskInstanceManager().createHistoricTask(newTask);
         newTask.fireEvent(TaskListener.EVENTNAME_CREATE);

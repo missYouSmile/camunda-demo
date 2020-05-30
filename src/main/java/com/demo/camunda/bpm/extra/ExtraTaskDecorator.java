@@ -1,31 +1,24 @@
 package com.demo.camunda.bpm.extra;
 
 import org.camunda.bpm.engine.delegate.VariableScope;
-import org.camunda.bpm.engine.impl.el.ExpressionManager;
 import org.camunda.bpm.engine.impl.persistence.entity.TaskEntity;
 import org.camunda.bpm.engine.impl.task.TaskDecorator;
-import org.camunda.bpm.engine.impl.task.TaskDefinition;
 
 public class ExtraTaskDecorator extends TaskDecorator {
 
-    public ExtraTaskDecorator(TaskDefinition taskDefinition, ExpressionManager expressionManager) {
-        super(taskDefinition, expressionManager);
+    public ExtraTaskDecorator(TaskDecorator taskDecorator) {
+        super(taskDecorator.getTaskDefinition(), taskDecorator.getExpressionManager());
     }
 
     @Override
     public void decorate(TaskEntity task, VariableScope variableScope) {
-        // set the taskDefinition
-        task.setTaskDefinition(taskDefinition);
-        
-        // name
-        initializeTaskName(task, variableScope);
-        // description
-        initializeTaskDescription(task, variableScope);
-        // dueDate
-        initializeTaskDueDate(task, variableScope);
-        // followUpDate
-        initializeTaskFollowUpDate(task, variableScope);
-        // priority
-        initializeTaskPriority(task, variableScope);
+        super.decorate(task, variableScope);
+        // save extra task
+    }
+
+    @Override
+    protected void initializeTaskAssignee(TaskEntity task, VariableScope variableScope) {
+        super.initializeTaskAssignee(task, variableScope);
+        // check task assignee is on duty
     }
 }
