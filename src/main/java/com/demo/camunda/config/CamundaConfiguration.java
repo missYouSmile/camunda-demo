@@ -2,14 +2,20 @@ package com.demo.camunda.config;
 
 import com.demo.camunda.bpm.extra.ExtraTaskDecorator;
 import com.demo.camunda.bpm.interceptor.ExtraContextInterceptor;
+import com.demo.camunda.bpm.listener.task.ExtraTaskAssignmentListener;
+import com.demo.camunda.bpm.listener.task.ExtraTaskCompleteListener;
+import com.demo.camunda.bpm.listener.task.ExtraTaskCreateListener;
+import com.demo.camunda.bpm.listener.task.ExtraTaskDeleteListener;
 import com.google.common.collect.Lists;
 import org.camunda.bpm.engine.*;
+import org.camunda.bpm.engine.delegate.TaskListener;
 import org.camunda.bpm.engine.impl.bpmn.behavior.UserTaskActivityBehavior;
 import org.camunda.bpm.engine.impl.bpmn.parser.AbstractBpmnParseListener;
 import org.camunda.bpm.engine.impl.bpmn.parser.BpmnParseListener;
 import org.camunda.bpm.engine.impl.pvm.process.ActivityImpl;
 import org.camunda.bpm.engine.impl.pvm.process.ScopeImpl;
 import org.camunda.bpm.engine.impl.task.TaskDecorator;
+import org.camunda.bpm.engine.impl.task.TaskDefinition;
 import org.camunda.bpm.engine.impl.util.xml.Element;
 import org.camunda.bpm.engine.spring.ProcessEngineFactoryBean;
 import org.camunda.bpm.engine.spring.SpringProcessEngineConfiguration;
@@ -55,17 +61,31 @@ public class CamundaConfiguration {
         AbstractBpmnParseListener postParseListeners = new AbstractBpmnParseListener() {
             @Override
             public void parseUserTask(Element userTaskElement, ScopeImpl scope, ActivityImpl activity) {
-                replaceTaskDecorator(activity);
+                replaceUserTaskActivityBehavior(activity);
             }
         };
         return Lists.newArrayList(postParseListeners);
     }
 
-    private void replaceTaskDecorator(ActivityImpl activity) {
+    private void replaceUserTaskActivityBehavior(ActivityImpl activity) {
+        UserTaskActivityBehavior activityBehavior = buildUserTaskActivityBehavior(activity);
+        activity.setActivityBehavior(activityBehavior);
+    }
+
+    private UserTaskActivityBehavior buildUserTaskActivityBehavior(ActivityImpl activity) {
         UserTaskActivityBehavior behavior = (UserTaskActivityBehavior) activity.getActivityBehavior();
         TaskDecorator originalTaskDecorator = behavior.getTaskDecorator();
+        decorateTaskDefinition(originalTaskDecorator);
         ExtraTaskDecorator realTaskDecorator = new ExtraTaskDecorator(originalTaskDecorator);
-        activity.setActivityBehavior(new UserTaskActivityBehavior(realTaskDecorator));
+        return new UserTaskActivityBehavior(realTaskDecorator);
+    }
+
+    private void decorateTaskDefinition(TaskDecorator originalTaskDecorator) {
+        TaskDefinition taskDefinition = originalTaskDecorator.getTaskDefinition();
+        taskDefinition.addTaskListener(TaskListener.EVENTNAME_CREATE, new ExtraTaskCreateListener());
+        taskDefinition.addTaskListener(TaskListener.EVENTNAME_ASSIGNMENT, new ExtraTaskAssignmentListener());
+        taskDefinition.addTaskListener(TaskListener.EVENTNAME_COMPLETE, new ExtraTaskCompleteListener());
+        taskDefinition.addTaskListener(TaskListener.EVENTNAME_DELETE, new ExtraTaskDeleteListener());
     }
 
     @Bean

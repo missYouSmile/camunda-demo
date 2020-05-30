@@ -11,12 +11,6 @@ public class ExtraTaskDecorator extends TaskDecorator {
     }
 
     @Override
-    public void decorate(TaskEntity task, VariableScope variableScope) {
-        super.decorate(task, variableScope);
-        // save extra task
-    }
-
-    @Override
     protected void initializeTaskAssignee(TaskEntity task, VariableScope variableScope) {
         super.initializeTaskAssignee(task, variableScope);
         // check task assignee is on duty
