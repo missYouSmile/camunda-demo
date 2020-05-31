@@ -1,0 +1,22 @@
+spring:
+  # config of DataSource
+  datasource:
+    hikari:
+      url: jdbc:h2:mem:camunda;DB_CLOSE_DELAY=-1;SQL_MODE=MYSQL
+      username: anything
+      password: anything
+  jpa:
+    show-sql: true
+    generate-ddl: false
+    database: h2
+    open-in-view: true
+  security:
+    user:
+      name: admin
+      password: admin
+      roles: ADMIN
+logging:
+  level:
+    com:
+      demo:
+        camunda: debug

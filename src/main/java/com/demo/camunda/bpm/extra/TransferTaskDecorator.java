@@ -15,7 +15,7 @@ public class TransferTaskDecorator extends TaskDecorator {
     public TransferTaskDecorator(TaskDefinition taskDefinition, ExpressionManager expressionManager, String transferUserId) {
         super(taskDefinition, expressionManager);
         this.transferUserId = transferUserId;
-        Preconditions.checkArgument(Strings.isNullOrEmpty(transferUserId), "transferUserId is null");
+        Preconditions.checkArgument(!Strings.isNullOrEmpty(transferUserId), "transferUserId is null");
     }
 
     @Override
