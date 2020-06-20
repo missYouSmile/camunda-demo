@@ -1,7 +1,7 @@
 package com.demo.camunda.config;
 
+import com.demo.camunda.bpm.custom.CustomProcessEngineConfiguration;
 import com.demo.camunda.bpm.extra.ExtraTaskDecorator;
-import com.demo.camunda.bpm.interceptor.ExtraContextInterceptor;
 import com.demo.camunda.bpm.listener.task.ExtraTaskAssignmentListener;
 import com.demo.camunda.bpm.listener.task.ExtraTaskCompleteListener;
 import com.demo.camunda.bpm.listener.task.ExtraTaskCreateListener;
@@ -44,14 +44,13 @@ public class CamundaConfiguration {
 
     @Bean
     public SpringProcessEngineConfiguration processEngineConfiguration() {
-        SpringProcessEngineConfiguration config = new SpringProcessEngineConfiguration();
+        CustomProcessEngineConfiguration config = new CustomProcessEngineConfiguration();
         config.setProcessEngineName("camunda-demo");
         config.setDataSource(dataSource);
         config.setTransactionManager(transactionManager);
         config.setDatabaseSchemaUpdate(ProcessEngineConfiguration.DB_SCHEMA_UPDATE_TRUE);
         config.setHistory(ProcessEngineConfiguration.HISTORY_AUDIT);
         config.setJobExecutorActivate(true);
-        config.setCustomPreCommandInterceptorsTxRequired(Lists.newArrayList(new ExtraContextInterceptor()));
 
         config.setCustomPostBPMNParseListeners(postParseListeners());
         return config;
